@@ -3,6 +3,7 @@
 
 void ler(int *lista);
 
+
 int main(){
 
     int n, *lista,*i,*output;

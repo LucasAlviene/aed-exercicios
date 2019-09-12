@@ -19,6 +19,7 @@ int main(){
 void liberar(int *vetor){
     free(vetor);
 }
+
 void ler(int *lista, int n){
     int i,*input;
     input = (lista + sizeof(int));
