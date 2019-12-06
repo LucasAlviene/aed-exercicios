@@ -12,19 +12,19 @@ typedef struct N{
 } Nodo;
 
 void add(Nodo **arvore, Nodo *novo);
-void imprimir(Nodo *arvore,int *n);
+void imprimir(Nodo **arvore,int b);
 void Antecessor(Nodo *arvore,Nodo **arvoreD);
 void retirar(Nodo **arvore,Nodo *p);
+int Altura(Nodo **arvore);
+int FB(Nodo **arvore);
 Nodo * pesquisar(Nodo **arvore, int chave);
 
 int main(){
     Nodo **arvore,*pesquisa;
-    int n,list[100],i=0,op,*nespaco;
-    nespaco = (int *)malloc(sizeof(int));
+    int n,list[100],i=0,op;
     
     arvore = NULL;
     do{
-        *nespaco = 10;
         printf("\n1-Adicionar\n2-Imprimir\n3-Remover\n0-Sair\n--> ");
         scanf("%d",&op);
         switch(op){
@@ -41,18 +41,41 @@ int main(){
                 }
             break;
             case 2:
-                imprimir(arvore,nespaco);
+                printf("Altura: %d == %d",Altura(&(*arvore)->esquerda),Altura(&(*arvore)->direita));
+                //imprimir(arvore,FB(&arvore));
             break;
             case 3:
                 printf("Digite o numero:");
                 scanf("%d",&n);
                 pesquisa = pesquisar(&arvore,n);
                 retirar(&arvore,pesquisa);
-                imprimir(arvore,nespaco);
+                imprimir(arvore,FB(&arvore));
+            break;
+            case 4:
+                printf("Altura: %d",FB(&arvore));
             break;
         }
     }while(op != 0);
     return 0;
+}
+
+int FB(Nodo **arvore){
+    if(*arvore == NULL) return 0;
+
+    return Altura(&(*arvore)->esquerda)-Altura(&(*arvore)->direita);
+}
+
+int Altura(Nodo **arvore){
+    int iEsq,iDir;
+    if(*arvore == NULL) return 0;    
+
+    iEsq = Altura(&(*arvore)->esquerda);
+    iDir = Altura(&(*arvore)->direita);
+
+    if(iEsq > iDir){
+        return iEsq+1;
+    }
+    return iDir+1;
 }
 
 void espaco(int n){
@@ -62,18 +85,7 @@ void espaco(int n){
     }
 }
 
-void imprimir(Nodo *arvore,int *n){
-    /*if(arvore != NULL){
-        espaco(*n);
-        printf("%d\n",arvore->chave);
-        (*n)--;
-        imprimir(arvore->esquerda,n);
-        imprimir(arvore->direita,n);
-    }*/
-    mostrarArvore(&arvore,10);
-}
-
-void mostrarArvore(Nodo **arvore,int b){
+void imprimir(Nodo **arvore,int b){
     int i;
     if(*arvore == NULL){
         for(i=0;i<b;i++){
@@ -83,12 +95,12 @@ void mostrarArvore(Nodo **arvore,int b){
         return;
     }
     
-    mostrarArvore(&(*arvore)->esquerda,b+1);
+    imprimir(&(*arvore)->esquerda,b+1);
     for(i=0;i<b;i++){
         printf("    ");
     }
     printf("%d\n",(*arvore)->chave);
-    mostrarArvore(&(*arvore)->direita,b+1);
+    imprimir(&(*arvore)->direita,b+1);
 }
 
 void retirar(Nodo **arvore,Nodo *p){
