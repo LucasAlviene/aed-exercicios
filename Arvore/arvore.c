@@ -11,12 +11,12 @@ typedef struct N{
     struct N *esquerda,*direita;
 } Nodo;
 
-void add(Nodo **arvore, Nodo *novo);
+int add(Nodo **arvore, Nodo *novo);
 void imprimir(Nodo **arvore,int b);
 void Antecessor(Nodo *arvore,Nodo **arvoreD);
 void retirar(Nodo **arvore,Nodo *p);
-int Altura(Nodo **arvore);
-int FB(Nodo **arvore);
+int Altura(Nodo *arvore);
+int FB(Nodo *arvore);
 Nodo * pesquisar(Nodo **arvore, int chave);
 
 int main(){
@@ -41,36 +41,94 @@ int main(){
                 }
             break;
             case 2:
-                printf("Altura: %d == %d",Altura(&(*arvore)->esquerda),Altura(&(*arvore)->direita));
-                //imprimir(arvore,FB(&arvore));
+                imprimir(&arvore,5);
             break;
             case 3:
                 printf("Digite o numero:");
                 scanf("%d",&n);
                 pesquisa = pesquisar(&arvore,n);
                 retirar(&arvore,pesquisa);
-                imprimir(arvore,FB(&arvore));
+                imprimir(&arvore,5);
             break;
             case 4:
-                printf("Altura: %d",FB(&arvore));
+                printf("Altura: %d",FB(arvore));
             break;
         }
     }while(op != 0);
     return 0;
 }
 
-int FB(Nodo **arvore){
-    if(*arvore == NULL) return 0;
+void RSE(Nodo **arvore){
+    Nodo *aux;
 
-    return Altura(&(*arvore)->esquerda)-Altura(&(*arvore)->direita);
+    aux = (*arvore)->direita;
+    (*arvore)->direita = (*arvore)->esquerda;
+    (*arvore)->esquerda = *arvore
+    *arvore = aux;
 }
 
-int Altura(Nodo **arvore){
-    int iEsq,iDir;
-    if(*arvore == NULL) return 0;    
+void RSD(Nodo **arvore){
+    Nodo *aux;
 
-    iEsq = Altura(&(*arvore)->esquerda);
-    iDir = Altura(&(*arvore)->direita);
+    aux = (*arvore)->esquerda;
+    (*arvore)->esquerda = (*arvore)->direita;
+    (*arvore)->direita = *arvore
+    *arvore = aux;
+}
+
+int BE(Nodo **arvore){
+    int fb = FB((*arvore)->direita);
+
+    if(fb > 0){
+        RSE(arvore);
+        return 1;
+    }
+    if(fb < 0){
+        RSD((*arvore)->direita);
+        RSE(arvore);
+        return 1;
+    }
+    return 0;
+}
+
+int BD(Nodo **arvore){
+    int fb = FB((*arvore)->esquerda);
+
+    if(fb < 0){
+        RSD(arvore);
+        return 1;
+    }
+    if(fb > 0){
+        RSE((*arvore)->esquerda);
+        RSD(arvore);
+        return 1;
+    }
+    return 0;
+}
+
+int Balanceamento(Nodo *arvore){
+    int fb = FB(arvore);
+
+    if(fb > 1){
+        return BE(arvore);
+    }
+    if(fb < -1){
+        return BD(arvore);
+    }
+}
+
+int FB(Nodo *arvore){
+    if(arvore == NULL) return 0;
+
+    return Altura(arvore->esquerda)-Altura(arvore->direita);
+}
+
+int Altura(Nodo *arvore){
+    int iEsq=0,iDir=0;
+    if(arvore == NULL) return 0;    
+
+    iEsq = Altura(arvore->esquerda);
+    iDir = Altura(arvore->direita);
 
     if(iEsq > iDir){
         return iEsq+1;
@@ -161,17 +219,22 @@ Nodo * pesquisar(Nodo **arvore, int chave){
         return *arvore;
     }
 }
-void add(Nodo **arvore, Nodo *novo){
+int add(Nodo **arvore, Nodo *novo){
     if(*arvore == NULL){
         *arvore = novo;
-        return;
+        return 1;
     }
 
     if((*arvore)->chave < novo->chave){
-        add(&(*arvore)->direita,novo);
-        return;
+        if(add(&(*arvore)->direita,novo)){
+            if(Balanceamento(arvore)) return 1;
+        }
+        return 0;
     }
     if((*arvore)->chave > novo->chave){
-        add(&(*arvore)->esquerda,novo);
+        if(add(&(*arvore)->esquerda,novo)){
+            if(Balanceamento(arvore)) return 1;
+        }
     }
+    return 0;
 }
